@@ -10,13 +10,7 @@ import java.io.IOException;
 
 public class SqlRuParse {
     public static void main(String[] args) {
-        String url = "https://www.sql.ru/forum/job-offers";
-        String query = ".postslisttopic, td[class=\"altCol\"][style=\"text-align:center\"]";
-        for (int i = 1; i <= 5; i++) {
-            String pageUrl = url + "/" + i;
-            Elements el = parsePage(pageUrl, query);
-            printElements(el);
-        }
+        parsePages(5);
     }
 
     public static void printElements(Elements elements) {
@@ -43,5 +37,15 @@ public class SqlRuParse {
             e.printStackTrace();
         }
         return doc != null ? doc.select(query) : null;
+    }
+
+    public static void parsePages(int count) {
+        String url = "https://www.sql.ru/forum/job-offers";
+        String query = ".postslisttopic, td[class=\"altCol\"][style=\"text-align:center\"]";
+        for (int i = 1; i <= count; i++) {
+            String pageUrl = url + "/" + i;
+            Elements el = parsePage(pageUrl, query);
+            printElements(el);
+        }
     }
 }

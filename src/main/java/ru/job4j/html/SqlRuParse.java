@@ -5,18 +5,43 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
+
 
 public class SqlRuParse {
-    public static void main(String[] args) throws Exception {
-        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
-        Elements rowTopics = doc.select(".postslisttopic, td[class=\"altCol\"][style=\"text-align:center\"]");
-        for (Element el : rowTopics) {
-            if (el.childrenSize() == 0) {
-                System.out.println("Date: " + el.text());
-                continue;
-            }
-            System.out.println("Text: " + el.child(0).text());
-            System.out.println("href: " + el.child(0).attr("href"));
+    public static void main(String[] args) {
+        String url = "https://www.sql.ru/forum/job-offers";
+        String query = ".postslisttopic, td[class=\"altCol\"][style=\"text-align:center\"]";
+        for (int i = 1; i <= 5; i++) {
+            String pageUrl = url + "/" + i;
+            Elements el = parsePage(pageUrl, query);
+            printElements(el);
         }
+    }
+
+    public static void printElements(Elements elements) {
+        if (elements != null) {
+            for (Element el : elements) {
+                if (el.childrenSize() == 0) {
+                    System.out.println("Date: " + el.text());
+                    System.out.println();
+                    continue;
+                }
+                System.out.println("Text: " + el.child(0).text());
+                System.out.println("href: " + el.child(0).attr("href"));
+            }
+        } else {
+            System.out.println("No such elements found");
+        }
+    }
+
+    public static Elements parsePage(String url, String query) {
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return doc != null ? doc.select(query) : null;
     }
 }

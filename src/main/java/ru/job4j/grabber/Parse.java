@@ -3,7 +3,9 @@ package ru.job4j.grabber;
 import java.util.List;
 
 public interface Parse {
-    List<SqlRuPost> list(String link);
+    List<Post> list();
 
-    SqlRuPost detail(String link);
+    List<Post> list(String link);
+
+    Post detail(String link);
 }

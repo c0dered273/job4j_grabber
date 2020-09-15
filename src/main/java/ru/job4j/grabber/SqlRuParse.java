@@ -1,5 +1,8 @@
 package ru.job4j.grabber;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,21 +14,32 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.*;
 
-
 public class SqlRuParse implements Parse {
+    private static final Logger logger = LoggerFactory.getLogger(SqlRuParse.class);
+    private final Properties cfg;
+
+    public SqlRuParse(Properties cfg) {
+        this.cfg = cfg;
+    }
 
     @Override
-    public List<SqlRuPost> list(String link) {
-        List<SqlRuPost> rsl = new ArrayList<>();
+    public List<Post> list() {
+        return list(cfg.getProperty("SqlRu.link"));
+    }
+
+    @Override
+    public List<Post> list(String link) {
+        List<Post> rsl = new ArrayList<>();
         String topicQuery = ".postslisttopic";
         Elements elements = getElements(link, topicQuery);
         if (elements != null) {
             for (Element el : elements) {
                 String href = el.child(0).attr("href");
-                SqlRuPost newPost = detail(href);
+                Post newPost = detail(href);
                 if (newPost != null) {
                     rsl.add(newPost);
                 }
@@ -35,8 +49,8 @@ public class SqlRuParse implements Parse {
     }
 
     @Override
-    public SqlRuPost detail(String link) {
-        SqlRuPost rsl = null;
+    public Post detail(String link) {
+        Post rsl = null;
         String detailsQuery = ".msgTable";
         Elements details = getElements(link, detailsQuery);
         if (details != null && details.size() > 0) {
@@ -44,7 +58,7 @@ public class SqlRuParse implements Parse {
             String desc = details.first().getElementsByClass("msgBody").get(1).text();
             String date = details.first().getElementsByClass("msgFooter").textNodes().get(0).text();
             date = date.substring(0, date.lastIndexOf("["));
-            rsl = new SqlRuPost(link, name, desc, parseDate(date));
+            rsl = new Post(name, desc, link, parseDate(date));
         }
         return rsl;
     }
@@ -60,7 +74,7 @@ public class SqlRuParse implements Parse {
     }
 
     private LocalDateTime parseDate(String date) {
-        LocalDateTime rsl;
+        LocalDateTime rsl = null;
         Map<Long, String> monthsMap = new HashMap<>();
         monthsMap.put(1L, "янв");
         monthsMap.put(2L, "фев");
@@ -85,13 +99,18 @@ public class SqlRuParse implements Parse {
         String dt = spl[0].trim();
         String tm = spl[1].trim();
         LocalDate localDate;
-        switch (dt) {
-            case "сегодня" -> localDate = LocalDate.now();
-            case "вчера" -> localDate = LocalDate.now().minusDays(1L) ;
-            default -> localDate = LocalDate.parse(dt, dateFormatter);
+        LocalTime localTime;
+        try {
+            switch (dt) {
+                case "сегодня" -> localDate = LocalDate.now();
+                case "вчера" -> localDate = LocalDate.now().minusDays(1L) ;
+                default -> localDate = LocalDate.parse(dt, dateFormatter);
+            }
+            localTime = LocalTime.parse(tm, timeFormatter);
+            rsl = LocalDateTime.of(localDate, localTime);
+        } catch (DateTimeParseException e) {
+            logger.error("Date and time parse error", e);
         }
-        LocalTime localTime = LocalTime.parse(tm, timeFormatter);
-        rsl = LocalDateTime.of(localDate, localTime);
         return rsl;
     }
 }

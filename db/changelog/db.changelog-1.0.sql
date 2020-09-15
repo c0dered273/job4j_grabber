@@ -1,7 +1,9 @@
-create table Items
+create table Post
 (
     id   serial primary key,
-    name varchar(255),
-    description text
+    name varchar(2048),
+    description text,
+    link varchar(2048) UNIQUE,
+    created timestamp
 );
 

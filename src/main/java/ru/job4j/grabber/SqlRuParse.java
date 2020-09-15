@@ -18,14 +18,14 @@ import java.util.*;
 public class SqlRuParse implements Parse {
 
     @Override
-    public List<Post> list(String link) {
-        List<Post> rsl = new ArrayList<>();
+    public List<SqlRuPost> list(String link) {
+        List<SqlRuPost> rsl = new ArrayList<>();
         String topicQuery = ".postslisttopic";
         Elements elements = getElements(link, topicQuery);
         if (elements != null) {
             for (Element el : elements) {
                 String href = el.child(0).attr("href");
-                Post newPost = detail(href);
+                SqlRuPost newPost = detail(href);
                 if (newPost != null) {
                     rsl.add(newPost);
                 }
@@ -35,8 +35,8 @@ public class SqlRuParse implements Parse {
     }
 
     @Override
-    public Post detail(String link) {
-        Post rsl = null;
+    public SqlRuPost detail(String link) {
+        SqlRuPost rsl = null;
         String detailsQuery = ".msgTable";
         Elements details = getElements(link, detailsQuery);
         if (details != null && details.size() > 0) {
@@ -44,7 +44,7 @@ public class SqlRuParse implements Parse {
             String desc = details.first().getElementsByClass("msgBody").get(1).text();
             String date = details.first().getElementsByClass("msgFooter").textNodes().get(0).text();
             date = date.substring(0, date.lastIndexOf("["));
-            rsl = new Post(link, name, desc, parseDate(date));
+            rsl = new SqlRuPost(link, name, desc, parseDate(date));
         }
         return rsl;
     }

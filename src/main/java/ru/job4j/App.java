@@ -1,7 +1,7 @@
 package ru.job4j;
 
 import ru.job4j.grabber.SqlRuParse;
-import ru.job4j.grabber.Post;
+import ru.job4j.grabber.SqlRuPost;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class App
     {
         String url = "https://www.sql.ru/forum/job-offers";
         SqlRuParse sqlRuParse = new SqlRuParse();
-        List<Post> result = sqlRuParse.list(url);
+        List<SqlRuPost> result = sqlRuParse.list(url);
         result.forEach(System.out::println);
     }
 }

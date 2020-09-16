@@ -40,6 +40,7 @@ public class App {
             Scheduler scheduler = grab.scheduler();
             Store store = grab.store();
             grab.init(new SqlRuParse(), store, scheduler);
+            grab.web(store);
         } catch (IOException e) {
             logger.error("Config file read error", e);
         } catch (SchedulerException e) {

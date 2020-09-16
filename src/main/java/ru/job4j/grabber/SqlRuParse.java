@@ -20,15 +20,10 @@ import java.util.*;
 
 public class SqlRuParse implements Parse {
     private static final Logger logger = LoggerFactory.getLogger(SqlRuParse.class);
-    private final Properties cfg;
-
-    public SqlRuParse(Properties cfg) {
-        this.cfg = cfg;
-    }
 
     @Override
     public List<Post> list() {
-        return list(cfg.getProperty("SqlRu.link"));
+        return list("https://www.sql.ru/forum/job-offers");
     }
 
     @Override

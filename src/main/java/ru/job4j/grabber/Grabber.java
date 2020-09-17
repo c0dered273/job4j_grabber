@@ -9,6 +9,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
@@ -41,11 +42,12 @@ public class Grabber implements Grab {
             try (ServerSocket server = new ServerSocket(Integer.parseInt(cfg.getProperty("server.port")))) {
                 while (!server.isClosed()) {
                     Socket socket = server.accept();
-                    try (OutputStream out = socket.getOutputStream()) {
-                        out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
+                    try (BufferedWriter out = new BufferedWriter(
+                            new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_16))) {
+                        out.write("HTTP/1.1 200 OK\r\n\r\n");
                         for (Post post : store.getAll()) {
-                            out.write(post.toString().getBytes());
-                            out.write(System.lineSeparator().getBytes());
+                            out.write(post.toString());
+                            out.write(System.lineSeparator());
                         }
                     } catch (IOException io) {
                         io.printStackTrace();
